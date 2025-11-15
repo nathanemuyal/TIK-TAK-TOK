@@ -6,58 +6,76 @@ import java.awt.*;
 class Window extends JFrame {
 
     public static void main(String[] args) {
-        Window window = new Window();
+        new Window();
     }
 
-    boolean play = true;
+
     boolean isX = false;
     int num = 0;
-    int fullCells = 0;
+    public boolean reset;
     int turnCounter = 0;
     static char[][] board = new char[3][3];
     public static final int WINDOW_WHIDTH = 250;
     public static final int WINDOW_HIGHET = 250;
+    JButton[] cells = new JButton[9];
+
 
     public Window() {
 //        Screen screen = new Screen(0, 0, WINDOW_WHIDTH, WINDOW_HIGHET, Color.cyan);
 //        this.add(screen);
+
         this.setSize(WINDOW_WHIDTH, WINDOW_HIGHET);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         if (num <= 9) {
             GridLayout gridLayout = new GridLayout(3, 3);
             this.setLayout(gridLayout);
+
             for (int i = 0; i < 9; i++) {
-                JButton cell = new JButton(     );
-                cell.addActionListener((e) -> {
-                    turnCounter++;
-                    if (cell.getText().equals("")) {
-
-                            if (isX) {
-                                cell.setText("0");
-                                convert(cell.getX(), cell.getY(), 'O');
-                                num++;
-                                isX = false;
-
-                            } else {
-                                cell.setText("X");
-                                convert(cell.getX(), cell.getY(), 'X');
-                                num++;
-                                isX = true;
-                            }
-
-                    }
-                });
+                JButton cell = getJButton();
+                cells[i] = cell;
                 this.add(cell);
             }
+
+            reset = false;
+
         }
+
         this.setResizable(false);
         this.setTitle("TIK-TAK-TOE");
         this.setVisible(true);
 
     }
 
-    private boolean convert(int x, int y, char c){
+    private JButton getJButton() {
+        JButton cell = new JButton();
+
+        cell.addActionListener((e) -> {
+            turnCounter++;
+
+            if (cell.getText().isEmpty()) {
+
+                if (isX) {
+                    cell.setText("0");
+                    convert(cell.getX(), cell.getY(), 'O');
+                    num++;
+                    isX = false;
+
+                } else {
+                    cell.setText("X");
+                    convert(cell.getX(), cell.getY(), 'X');
+                    num++;
+                    isX = true;
+                }
+
+            }
+
+        });
+
+        return cell;
+    }
+
+    private void convert(int x, int y, char c) {
         int xCor = -1;
         int yCor = -1;
         if (y == 0) xCor = 0;
@@ -69,24 +87,43 @@ class Window extends JFrame {
         if (x == 157) yCor = 2;
         board[xCor][yCor] = c;
         checkWin();
-        return false;
     }
 
-    public void checkWin(){
+    private void resetGame() {
+        // איפוס הטקסט של כל הכפתורים
+        for (JButton b : cells) {
+            b.setText("");
+        }
+
+        // איפוס מערך הלוח
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = '-';
+            }
+        }
+
+        num = 0;
+        turnCounter = 0;
+        isX = false;
+        reset = false;
+    }
+
+    public void checkWin() {
         char winner = checkWinner(board);
-        if (winner == 'X')  {
+        if (winner == 'X') {
             JOptionPane.showMessageDialog(this, "X won");
-            System.exit(0);
+            resetGame();
         }
-        if (winner == 'O')  {
+        if (winner == 'O') {
             JOptionPane.showMessageDialog(this, "O won");
-            System.exit(0);
+            resetGame();
         }
-        if (turnCounter == 9 && winner == '-'){
+        if (turnCounter == 9 && winner == '-') {
             JOptionPane.showMessageDialog(this, "draw");
-            System.exit(0);
+            resetGame();
         }
     }
+
 
     public static char checkWinner(char[][] array) {
         // check for row winners
